@@ -1,12 +1,10 @@
 source("single_tree.R")
+sourceCpp("bestsplit.cpp")
+library(Rcpp)
 library(plugdensity)
 
-
-mod_sample <- function(){
-}
-
 make_error <- function(error_list){
-    errors <- list()
+    errors <- list()#rep(0, length = length(error_list))
     for(x in 1:length(error_list))
         errors[[x]] <- rep(x, as.numeric(error_list[[x]]))
     return(as.numeric(unlist(errors)))
@@ -35,12 +33,12 @@ predict_forest <- function(forest, dataset){
     return(unlist(predictions))
 }
 
-corr <- redwine_df[1:length(redwine_df),]$y
 seed_forest <- function(dataset, tree_num, m){
     forest <- list()
     errors <- list()
+    corr <- dataset$y
     new_indi <- 0
-    E <- rep(0, length(dataset))
+    E <- rep(0, dim(dataset)[1])
     indexes <- list()
     for(i in 1:tree_num){
         if(!length(indexes)){
@@ -60,8 +58,12 @@ seed_forest <- function(dataset, tree_num, m){
         E[indexes] <- E[indexes] + 1
         errors <- make_error(E)
         fs <- plugin.density(errors)
-        means <- sample(errors, length(dataset), replace =TRUE)
-        new_indi <- floor(rnorm(length(dataset), mean=means, sd=fs$bw))
+        if(anyNA(fs$y)) fs$bw <- 0
+        means <- sample(errors, dim(dataset)[1], replace = TRUE)
+        new_indi <- floor(rnorm(dim(dataset)[1], mean=means, sd=fs$bw))
+        new_indi[new_indi <= 0] <- 1
+        new_indi[new_indi > length(new_indi)] <- length(new_indi)
+        indexes <- new_indi
     }
     return(forest)
 }
