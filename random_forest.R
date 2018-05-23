@@ -3,6 +3,9 @@ sourceCpp("bestsplit.cpp")
 library(Rcpp)
 library(plugdensity)
 
+redwine_df <- read.csv("winequality-red.csv", sep=";")
+colnames(redwine_df)[12] <- "y"
+
 make_error <- function(error_list){
     errors <- list()#rep(0, length = length(error_list))
     for(x in 1:length(error_list))
