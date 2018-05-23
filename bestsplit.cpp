@@ -30,6 +30,7 @@ Rcpp::List bestSplit(Rcpp::NumericMatrix dataset){
 	return_list["sse"] = sse_min;
 	return_list["index"] = index_min+1;
 	return_list["split_val"] = split_var;
+	
     return_list["splits"] = splits_min;
     
     return return_list;
